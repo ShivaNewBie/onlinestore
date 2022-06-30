@@ -23,7 +23,41 @@ def product_detail(request,pk):
             'quantity':product.quantity,
         }}
         response = JsonResponse(data)
+    except Manufacture.DoesNotExist:
+        response = JsonResponse({
+            'error':{
+                'code':404,
+                'message':'product not found!'
+            }}, 
+            status=404)
+    return response
+
+def manufacture_detail(request,pk):
+    try:
+        manufacturer = Manufacture.objects.get(pk=pk)
+        manufacturer_products = manufacturer.products.all()
+        data = {'Manufacturer':{
+            'name': manufacturer.name,
+            'location':manufacturer.location,
+            'active': manufacturer.active,
+            'products': list(manufacturer_products.values())
+        }}
+        response = JsonResponse(data)
     except Product.DoesNotExist:
+        response = JsonResponse({
+            'error':{
+                'code':404,
+                'message':'product not found!'
+            }}, 
+            status=404)
+    return response
+
+def manufacture_list(request):
+    try:
+        manufacturer = Manufacture.objects.filter(active=True) #only returns manufacturers that has active = True
+        data = {'manufacturer': list(manufacturer.values())}    
+        response = JsonResponse(data)
+    except Manufacture.DoesNotExist:
         response = JsonResponse({
             'error':{
                 'code':404,
